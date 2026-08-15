@@ -1,0 +1,50 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+# One job per platform/arch: dsh contains native modules, so each artifact
+# must be built on a runner matching its target.
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            builder-flag: --mac
+            artifact: mac-arm64
+          - os: macos-15-intel
+            builder-flag: --mac --x64
+            artifact: mac-x64
+          - os: windows-latest
+            builder-flag: --win --x64
+            artifact: win-x64
+          - os: ubuntu-latest
+            builder-flag: --linux --x64
+            artifact: linux-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - name: Package
+        run: npx electron-builder ${{ matrix.builder-flag }} --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fastdsh-${{ matrix.artifact }}
+          path: release/*
+          if-no-files-found: error

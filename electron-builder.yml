@@ -1,0 +1,48 @@
+appId: com.fastdsh.app
+productName: FastDSH
+copyright: Copyright © 2026
+
+# asar must stay OFF: the Harness child is a plain Node process forked via
+# utilityProcess and cannot read files inside an asar archive.
+asar: false
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**
+  - resources/**
+  - package.json
+  - "!**/*.map"
+
+# dsh ships architecture-specific native modules; rebuild them for the
+# target platform/arch during packaging. Always package ON the matching
+# runner (macOS arm64 on Apple Silicon, etc.) so the binaries line up.
+npmRebuild: true
+
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - dmg
+    - zip
+  # Code signing / notarization: set CSC_LINK, CSC_KEY_PASSWORD and
+  # APPLE_ID/APPLE_APP_SPECIFIC_PASSWORD/APPLE_TEAM_ID in CI secrets.
+  notarize: false
+
+win:
+  target:
+    - nsis
+    - portable
+
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  shortcutName: FastDSH
+
+linux:
+  category: Development
+  target:
+    - AppImage
+    - deb
