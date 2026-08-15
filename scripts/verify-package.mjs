@@ -25,8 +25,9 @@ if (!appNodeModules) {
   process.exit(2)
 }
 
+const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 const tree = JSON.parse(
-  execFileSync('npm', ['ls', '--omit=dev', '--all', '--json'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  execFileSync(npmCmd, ['ls', '--omit=dev', '--all', '--json'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
 )
 
 const wanted = new Set()
