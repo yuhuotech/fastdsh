@@ -39,11 +39,18 @@ npm run package:win     # NSIS installer + portable (run on Windows)
 npm run package:linux   # AppImage + deb (run on Linux, or via Docker below)
 ```
 
-Linux on a macOS/Windows host via Docker:
+Linux on a macOS host via Docker (builds inside the container filesystem —
+electron-builder chmods the setuid chrome-sandbox, which macOS share mounts
+reject — and copies only the artifacts back):
 
 ```sh
-docker run --rm -v "$PWD":/project -w /project electronuserland/builder:wine \
-  bash -c "npm ci && npm run package:linux"
+mkdir -p out-linux
+docker run --rm --platform linux/amd64 --user "$(id -u):$(id -g)" \
+  -e HOME=/tmp -e APPIMAGE_EXTRACT_AND_RUN=1 \
+  -v "$PWD":/project:ro -v "$PWD/out-linux":/out \
+  node:24-bookworm bash -c \
+  "cp -a /project /tmp/work && cd /tmp/work && npm ci && npm run build \
+   && npx electron-builder --linux --x64 && cp -a release/. /out/"
 ```
 
 macOS builds are unsigned by default. To sign and notarize, install a
