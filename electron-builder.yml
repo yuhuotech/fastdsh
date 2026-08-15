@@ -15,6 +15,16 @@ files:
   - resources/**
   - package.json
   - "!**/*.map"
+  # dsh resolves part of its runtime through npm peer dependencies (e.g.
+  # dsh-app-boot peers on cordis-plugin-group, dsh-bash-local, dsh-sandbox…).
+  # electron-builder's npm collector drops peer-only packages, so
+  # force-include them here. Everything under node_modules/@deepseek-ai is
+  # runtime code — npm never installs devDependencies of dependencies —
+  # and platform-scoped optional natives are only present when npm installed
+  # them for the build host/target, so this stays platform-correct.
+  - node_modules/@deepseek-ai/**
+  - node_modules/@cfworker/**
+  - node_modules/@emnapi/**
 
 # dsh ships architecture-specific native modules; rebuild them for the
 # target platform/arch during packaging. Always package ON the matching

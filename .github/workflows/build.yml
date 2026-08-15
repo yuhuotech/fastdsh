@@ -43,6 +43,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # electron-builder's npm collector drops peer-only dependencies; fail
+      # the build if any installed production package is missing from the
+      # packaged app.
+      - name: Verify packaged dependencies
+        shell: bash
+        run: |
+          app_nm=$(find release -type d -ipath "*/resources/app/node_modules" | head -1)
+          node scripts/verify-package.mjs "$app_nm"
+
       - uses: actions/upload-artifact@v4
         with:
           name: fastdsh-${{ matrix.artifact }}
