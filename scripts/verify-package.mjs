@@ -25,9 +25,14 @@ if (!appNodeModules) {
   process.exit(2)
 }
 
-const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+// Windows: spawning npm/npm.cmd without a shell is rejected by Node
+// (ENOENT/EINVAL since the .bat/.cmd security hardening). Use a shell there.
 const tree = JSON.parse(
-  execFileSync(npmCmd, ['ls', '--omit=dev', '--all', '--json'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  execFileSync('npm', ['ls', '--omit=dev', '--all', '--json'], {
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+    shell: process.platform === 'win32'
+  })
 )
 
 const wanted = new Set()
