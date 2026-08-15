@@ -43,6 +43,7 @@ nsis:
 
 linux:
   category: Development
+  maintainer: yuhuotech
   target:
     - AppImage
     - deb
