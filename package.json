@@ -6,6 +6,11 @@
   "description": "One-click desktop client for DeepSeek Harness (@deepseek-ai/dsh)",
   "author": "yuhuotech",
   "license": "MIT",
+  "homepage": "https://github.com/yuhuotech/fastdsh",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuhuotech/fastdsh.git"
+  },
   "type": "module",
   "main": "dist/main/main.js",
   "engines": {
